@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.0.xsd">
+	
+		
+	<!-- DATA SOURCE LOCAL -->
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource" 
+	p:driverClassName="com.mysql.jdbc.Driver"
+	p:url="jdbc:mysql://localhost:3306/entuliga"
+	p:username="root" p:password="root"/>  
+
+	<!-- PROPERTIES HIBERNATE -->
+	<bean id="PropertiesHibernate"
+	class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+			<props>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+<!-- 				<prop key="hibernate.query.substitutions">true 'T', false 'F'</prop> -->
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.c3p0.minPoolSize">5</prop>
+				<prop key="hibernate.c3p0.maxPoolSize">20</prop>
+				<prop key="hibernate.c3p0.timeout">600</prop>
+				<prop key="hibernate.c3p0.max_statement">50</prop>
+				<prop key="hibernate.current_session_context_class">thread</prop>
+				<prop key="hibernate.c3p0.testConnectionOnCheckout">false</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- CONFIGURACIÓN HIBERNATE -->
+	<bean id="sessionFactoryHibernate" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+        <property name="dataSource"><ref local="dataSource"/></property>
+        <property name="annotatedClasses">
+            <list>
+                <value>com.entuliga.registro.dto.ParticipanteDto</value>
+            </list>
+        </property>
+		<property name="hibernateProperties">
+			<ref bean="PropertiesHibernate" />
+		</property>
+    </bean>
+	
+<!-- 	<bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager" -->
+<!-- 	  p:sessionfactory-ref="sessionFactory"> -->
+<!-- 	</bean> -->
+ 
+<!-- 	<tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven> -->
+	
+	
+	
+	<!-- INJECTION DE DEPENDENCIAS -->
+	
+	<!-- ELEMENTOS -->
+		
+	<!-- DAOS -->
+	
+	<bean id="ParticipanteDao" class="com.entuliga.registro.dao.ParticipanteDaoImpl">
+		<property name="sessionFactory" ref="sessionFactoryHibernate" />
+	</bean>
+	
+	
+	
+	<!-- BOS-->
+	<bean id="ParticipanteBo" class="com.entuliga.registro.bo.ParticipanteBoImpl"
+	p:participanteDao-ref ="ParticipanteDao" />
+	
+	
+	
+	<!--FACADE-->
+	<bean id="ParticipanteFacade" class="com.entuliga.registro.facade.ParticipanteFacade" 
+	p:participanteBo-ref = "ParticipanteBo"/>
+	
+</beans>
